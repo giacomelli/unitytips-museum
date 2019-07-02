@@ -1,4 +1,4 @@
-../test-on-jekyll.sh
+./test-on-jekyll.sh
 
 cd ./../giacomelli.github.io-jekyll/src/apps/unitytips-museum
 git status
