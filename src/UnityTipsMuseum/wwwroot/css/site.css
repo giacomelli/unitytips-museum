@@ -136,6 +136,7 @@ app {
 
 .tip-widget {
     margin: 10px;
+    min-width: 240px;
 }
 
 .tag {

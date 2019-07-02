@@ -5,4 +5,3 @@ rm -rf bin/
 
 cd ../../tools
 cp -R jekyll-files/ ../../giacomelli.github.io-jekyll/src/apps/unitytips-museum
-
