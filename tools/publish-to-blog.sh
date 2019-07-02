@@ -6,9 +6,5 @@ rm -rf bin/
 cd ../../tools
 cp -R jekyll-files/ ../../giacomelli.github.io-jekyll/src/apps/unitytips-museum
 
-cd ../../giacomelli.github.io-jekyll/
-git status
-git add .
-git commit -m"#unitytips Museum updated"
-git push
+./test-on-jekyll.sh
 
