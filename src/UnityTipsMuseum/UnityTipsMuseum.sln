@@ -1,0 +1,17 @@
+
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnityTipsMuseum", "UnityTipsMuseum.csproj", "{DB4B4747-F035-461D-B37F-0398D9C3D4E5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DB4B4747-F035-461D-B37F-0398D9C3D4E5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DB4B4747-F035-461D-B37F-0398D9C3D4E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DB4B4747-F035-461D-B37F-0398D9C3D4E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DB4B4747-F035-461D-B37F-0398D9C3D4E5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

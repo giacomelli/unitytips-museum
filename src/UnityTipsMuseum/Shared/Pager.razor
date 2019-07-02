@@ -1,0 +1,24 @@
+<center>
+    <button class="btn btn-primary pager-button" onclick=@(_ => Paginate(1)) disabled=@(!CanMoveFirst)>&lt;&lt;</button>
+    <button class="btn btn-primary pager-button" onclick=@(_ => Paginate(PagedResult.Paging.PageNumber - 1)) disabled=@(!CanMovePrevious)>&lt;</button>
+    @for(var pageNumber = 1; pageNumber <= PagedResult.TotalPages; pageNumber++)
+    {
+        var scopePageNumber = pageNumber;
+        <button class="btn btn-primary @(PagedResult.Paging.PageNumber == pageNumber ? "pager-current-page" : "pager-button" )" onclick=@(_ => Paginate(scopePageNumber))>@pageNumber</button>
+    }
+    <button class="btn btn-primary pager-button" onclick=@(_ => Paginate(PagedResult.Paging.PageNumber + 1)) disabled=@(!CanMoveNext)>&gt;</button>
+    <button class="btn btn-primary pager-button" onclick=@(_ => Paginate(PagedResult.TotalPages)) disabled=@(!CanMoveLast)>&gt;&gt;</button>
+</center>
+
+@code {
+    [Parameter]
+    public IPagedResult PagedResult { get; set; }
+
+    [Parameter]
+    public Action<int> Paginate { get; set; }
+    
+    bool CanMoveFirst => PagedResult.Paging.PageNumber > 1;
+    bool CanMovePrevious => CanMoveFirst;
+    bool CanMoveNext => PagedResult.Paging.PageNumber < PagedResult.TotalPages;
+    bool CanMoveLast =>  CanMoveNext;
+}

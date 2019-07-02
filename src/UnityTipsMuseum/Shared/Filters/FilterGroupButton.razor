@@ -1,0 +1,31 @@
+﻿<button type="button" class="btn btn-@(Group.Selected ? "secondary" : "light")" onclick=@HandleClick>
+    @if(AnyItemSelected)
+    {
+        <span class="oi oi-magnifying-glass"></span>
+    }
+    @Group.Title
+    <i class="fa fa-filter" aria-hidden="true"></i>
+</button>
+
+@code {
+    [Parameter]
+    public FilterGroup Group { get; set; }
+
+    [Parameter]
+    public Func<FilterGroup, Task> OnSelectedChanged { get; set; }
+ 
+    [Parameter]
+    public FilterGroup[] AllGroups { get; set; }
+
+    bool AnyItemSelected => Group.Items.Any(i => i.Selected);
+    
+    public async Task HandleClick()
+    {
+        foreach(var g in AllGroups)
+            g.Selected = false;
+            
+        Group.Selected = true;
+        
+        await OnSelectedChanged?.Invoke(Group);
+    }
+}

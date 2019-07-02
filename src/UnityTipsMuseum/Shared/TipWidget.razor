@@ -1,0 +1,26 @@
+﻿@inject IJSRuntime JSRuntime
+
+<div class="card tip-widget">
+    <div class="card-body"
+    <center>
+        <div id="tweetId_@Tip.TweetId"></div>
+    </center>
+    @foreach(var tag in Tip.Tags)
+    {
+        <FilterItemWidget Item=@(new FilterItem(tag.Title)) OnSelectedChanged=@(() => OnTagSelectedChanged?.Invoke(tag)) />
+    }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public Tip Tip { get; set; }
+
+    [Parameter]
+    public Action<Tag> OnTagSelectedChanged { get; set;}
+
+    protected override async Task OnAfterRenderAsync()
+    {
+        await JSRuntime.InvokeAsync<bool>("createTweet", Tip.TweetId);
+    }
+}

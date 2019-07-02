@@ -1,0 +1,190 @@
+﻿@page "/"
+@inject IJSRuntime _js
+@inject TipService _service
+@inject LogService _log
+
+@if (tips == null)
+{ 
+    <Loading />
+}
+else
+{ 
+    <div class="d-flex justify-content-center">
+        <div class="btn-group btn-group-sm" role="group">                       
+            @foreach(var group in filterGroups) 
+            {
+                <FilterGroupButton Group=group AllGroups=filterGroups OnSelectedChanged=@ChangeFilterGroup />
+            }
+        </div>
+    </div>
+
+    <FilterGroupWidget Group=tagsGroup AllItemsFilter=allItems AffectedCountEnabled=true OnFilterItemSelected=@(async (item) => await FilterByOneTag(item)) />
+    <FilterGroupWidget Group=datesGroup AllItemsFilter=allItems OnFilterItemSelected=@(async (item) => await FilterByDate(item)) />
+    <FilterGroupWidget Group=authorsGroup AllItemsFilter=allItems OnFilterItemSelected=@(async (item) => await FilterByAuthor(item)) />
+
+    @if(filter.Tags.Any())
+    {
+        <div class="search-bar"> 
+            <div class="alert alert-secondary">Filter
+            @foreach(var tag in filteredTags)
+            {
+                <FilterItemWidget Item=@tag SelectedMarkEnabled=true AffectedCountEnabled=false OnSelectedChanged=@(async () => await FilterByTag(tag)) />
+            }
+            </div>
+        </div>
+    }
+
+    <div class="container">
+        <div class="row">
+        @foreach (var tip in tips.PageItems)
+        {
+            <div class="col">                
+                <TipWidget Tip=@tip OnTagSelectedChanged=@(async (tag) => await FilterByOneTag(tag)) />
+            </div>
+        } 
+        </div>
+        <Pager PagedResult=@tips Paginate=@(async (pageNumber) => await Paginate(pageNumber))/>
+    </div>
+
+}
+
+@code {
+    PagedResult<Tip> tips;
+    TipFilter filter;
+
+    FilterGroup tagsGroup;
+    FilterGroup datesGroup;
+    FilterGroup authorsGroup;
+    FilterGroup[] filterGroups;
+
+    FilterItem allItems;
+    FilterItem[] tagFilterItems;
+    FilterItem[] filteredTags;            
+    FilterItem[] dateFilterItems;
+    FilterItem[] authorFilterItems;
+
+    protected override async Task OnInitAsync()
+    {
+        await _log.Debug("OnInitAsync");
+        
+        var tags =  await _service.GetTagsAsync();
+        tagFilterItems = tags.ToFilterItems();
+        tagsGroup = new FilterGroup("Tags", tagFilterItems, true);
+                
+        var dates = await _service.GetDatesAsync();
+        dateFilterItems = dates.ToFilterItems();
+        datesGroup = new FilterGroup("Dates", dateFilterItems);
+        
+        var authors = await _service.GetAuthorsAsync();
+        authorFilterItems = authors.ToFilterItems();
+        authorsGroup = new FilterGroup("Authors", authorFilterItems);
+                    
+        filterGroups = new FilterGroup[] { tagsGroup, datesGroup, authorsGroup };
+
+        filter = new TipFilter
+        {
+            Tags = tagFilterItems.Where(x => x.Selected).Select(x => x.Title).ToList()
+        };
+
+        await Search(false);
+
+        allItems = new FilterItem("All") { AffectedCount = tips.TotalItems };
+    
+    }
+
+    async Task FilterByTag(FilterItem tag)
+    {
+        if (tag != allItems)
+        {
+            if (tag.Selected)
+            {
+                filter.Tags.Add(tag.Title);
+            }
+            else
+            {
+                filter.Tags.Remove(tag.Title);
+            }
+        }
+        
+        filter.Paging.PageNumber = 1;
+        await Search();
+    }
+
+    async Task FilterByOneTag(Tag tag)
+    {
+        var filterItem = tagFilterItems.First(x => x.Title == tag.Title);
+        await FilterByOneTag(filterItem);
+    }
+
+    async Task FilterByOneTag(FilterItem tag)
+    {
+        foreach(var t in tagFilterItems)
+        {
+            t.Selected = false;
+        }
+
+        filter.Tags.Clear();
+        tag.Selected = true;
+        await FilterByTag(tag);
+    } 
+
+    async Task Paginate(int pageNumber)
+    {
+        filter.Paging.PageNumber = pageNumber;
+        await Search();
+    }
+
+    async Task Search(bool raiseStateHasChanged = true)
+    {        
+        var previousTips = tips;
+        tips = await _service.GetTipsAsync(filter);
+
+        if(previousTips != null && tips.PageItems.SequenceEqual(previousTips.PageItems))
+            return;
+
+        var uniqueTags = tips.PageItems.GetUniqueTags();
+        filteredTags = tagFilterItems.Where(x => uniqueTags.Any(y => x.Title == y.Title)).ToArray();
+
+        if (raiseStateHasChanged)
+            await NotifyChanged();
+    }
+
+    async Task ChangeFilterGroup(FilterGroup group)
+    { 
+        await NotifyChanged();
+    }
+
+    async Task FilterByDate(FilterItem date)
+    {
+        await FilterByItem(
+            date, 
+            dateFilterItems, 
+            (f, v) => f.Date = v == null ? (DateTime?) null : Convert.ToDateTime(v));            
+    }
+
+    async Task FilterByAuthor(FilterItem author)
+    {
+        await FilterByItem(
+            author, 
+            authorFilterItems, 
+            (f, v) => f.TweetAuthor = v);
+    }
+
+    async Task FilterByItem(FilterItem item, FilterItem[] items, Action<TipFilter, string> setValue)
+    {
+        setValue(filter, item == allItems ? null : item.Title);
+        
+        foreach(var i in items)
+            i.Selected = false;
+
+        item.Selected = true;
+        
+        await Search();
+    }
+
+    async Task NotifyChanged()
+    {
+         await _js.InvokeAsync<bool>("removeAllTweets");
+         base.StateHasChanged();
+    }
+}

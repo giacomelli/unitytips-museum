@@ -1,0 +1,32 @@
+﻿<button class="badge tag" onclick=@HandleClick style="background-color:#@Item.Color" selected=@Item.Selected.ToString()>
+    @if(Item.Selected && SelectedMarkEnabled)
+    {
+        <span class="oi oi-check"></span>
+    }
+    @Item.Title
+ 
+    @if(AffectedCountEnabled)
+    {
+        <span class="badge badge-pill badge-light tips-count">@Item.AffectedCount</span>
+    }
+</button> 
+
+@code {
+    [Parameter]
+    public FilterItem Item { get; set; }
+
+    [Parameter]
+    public bool SelectedMarkEnabled { get; set; }
+
+    [Parameter]
+    public bool AffectedCountEnabled { get; set; }
+
+    [Parameter]
+    public Action OnSelectedChanged { get; set; }
+ 
+    public void HandleClick()
+    {
+        Item.Selected = !Item.Selected;
+        OnSelectedChanged?.Invoke();
+    }
+}

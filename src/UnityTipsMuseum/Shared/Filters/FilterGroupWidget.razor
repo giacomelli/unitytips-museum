@@ -1,0 +1,25 @@
+﻿@if(Group.Selected)
+{
+    <div class="search-bar"> 
+        <FilterItemWidget Item=@AllItemsFilter SelectedMarkEnabled=false AffectedCountEnabled=AffectedCountEnabled OnSelectedChanged=@(() => OnFilterItemSelected(AllItemsFilter)) />
+
+    @foreach(var item in Group.Items)
+    {            
+        <FilterItemWidget Item=@item SelectedMarkEnabled=true AffectedCountEnabled=AffectedCountEnabled OnSelectedChanged=@(() => OnFilterItemSelected(item)) />
+    }
+    </div>
+}
+
+@code {
+    [Parameter]
+    public FilterGroup Group { get; set; }
+
+    [Parameter]
+    public FilterItem AllItemsFilter { get; set;}
+
+    [Parameter]
+    public bool AffectedCountEnabled { get; set;}
+
+    [Parameter]
+    public Action<FilterItem> OnFilterItemSelected { get; set; }
+}
