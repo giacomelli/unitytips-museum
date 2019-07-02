@@ -1,4 +1,4 @@
-./test-on-jekyll.sh
+../test-on-jekyll.sh
 
 git status
 git add .
