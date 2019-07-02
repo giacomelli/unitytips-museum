@@ -31,13 +31,13 @@ namespace UnityTipsMuseum.Services
             IEnumerable<Tip> tipsFiltered = _tips;
 
             if(filter.Tags.Any())
-                tipsFiltered = tipsFiltered.Where(tip => !filter.Tags.Any() || filter.Tags.All(filterTag => tip.Tags.Any(tipTag => tipTag.Title == filterTag)));
+                tipsFiltered = tipsFiltered.Where(tip => !filter.Tags.Any() || filter.Tags.All(filterTag => tip.Tags.Any(tipTag => tipTag.Title.Equals(filterTag, StringComparison.OrdinalIgnoreCase))));
 
             if (filter.Date.HasValue)
                 tipsFiltered = tipsFiltered.Where(tip => tip.Date == filter.Date.Value);
 
             if (!string.IsNullOrEmpty(filter.TweetAuthor))
-                tipsFiltered = tipsFiltered.Where(tip => tip.TweetAuthor == filter.TweetAuthor);
+                tipsFiltered = tipsFiltered.Where(tip => tip.TweetAuthor.Equals(filter.TweetAuthor, StringComparison.OrdinalIgnoreCase));
 
             return new PagedResult<Tip>(tipsFiltered.ToArray(), filter.Paging);
         }
