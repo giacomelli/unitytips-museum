@@ -64,7 +64,9 @@ namespace UnityTipsMuseum.Services
             if (_tips == null)
             {
                 await _log.Debug("Loading tips...");
-                _tips = await _http.GetJsonAsync<Tip[]>("data/tips.json");
+                _http.DefaultRequestHeaders.Add("api-key", "B496F2BA0D1F45600E751743D6B2D8E0");
+                var response = await _http.GetJsonAsync<TipsResponse>("https://unitytips-museum.search.windows.net/indexes/tips/docs?api-version=2019-05-06&search=*");
+                _tips = response.Value;
                 await _log.Debug($"{_tips.Length} tips found.");
 
                 _tags = _tips.GetUniqueTags();
@@ -87,6 +89,11 @@ namespace UnityTipsMuseum.Services
                 _dates = _tips.Select(x => x.Date).Distinct().OrderByDescending(x => x).ToArray();
             }
         }
+    }
+
+    class TipsResponse
+    {
+        public Tip[] Value { get; set; }
     }
 }
 
