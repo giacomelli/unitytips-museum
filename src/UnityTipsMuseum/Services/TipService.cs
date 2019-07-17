@@ -39,6 +39,15 @@ namespace UnityTipsMuseum.Services
             if (!string.IsNullOrEmpty(filter.TweetAuthor))
                 tipsFiltered = tipsFiltered.Where(tip => tip.TweetAuthor.Equals(filter.TweetAuthor, StringComparison.OrdinalIgnoreCase));
 
+            if (!string.IsNullOrEmpty(filter.Term))
+            {
+                var term = filter.Term.ToUpperInvariant();
+                tipsFiltered = tipsFiltered.Where(
+                    tip => tip.Tags.Any(tag => tag.Title.ToUpperInvariant().Contains(term)) 
+                        || tip.TweetAuthor.Equals(term, StringComparison.OrdinalIgnoreCase)
+                        || tip.Date.ToShortDateString().Contains(term));
+            }
+
             return new PagedResult<Tip>(tipsFiltered.ToArray(), filter.Paging);
         }
 
@@ -99,11 +108,14 @@ public class TipFilter
 
    public DateTime? Date { get; set; }
 
+   public string Term { get; set; }
+
    public void Reset()
    {
        Tags.Clear();
        Paging = new Paging(1, 9);
        TweetAuthor = null;
        Date = null;
+       Term = null;
    }
 }

@@ -14,9 +14,18 @@ else
             @foreach(var group in filterGroups) 
             {
                 <FilterGroupButton Group=group AllGroups=filterGroups OnSelectedChanged=@ChangeFilterGroup />
-            }
+            }            
         </div>
     </div>
+
+    <div class="row"></div>
+    <div class="row">
+        <div class="col"></div>
+        <div class="col-8">
+            <input type="text" class="form-control" onchange=@FilterByTerm/>                 
+        </div>
+        <div class="col"></div>
+    </div>   
 
     <FilterGroupWidget Group=tagsGroup AllItemsFilter=allItems AffectedCountEnabled=true OnFilterItemSelected=@(async (item) => await FilterByOneTag(item)) />
     <FilterGroupWidget Group=datesGroup AllItemsFilter=allItems OnFilterItemSelected=@(async (item) => await FilterByDate(item)) />
@@ -49,8 +58,8 @@ else
 }
 
 @code {
-    PagedResult<Tip> tips;
-    TipFilter filter;
+    PagedResult<Tip> tips;    
+     TipFilter filter;
 
     FilterGroup tagsGroup;
     FilterGroup datesGroup;
@@ -61,7 +70,7 @@ else
     FilterItem[] tagFilterItems;
     FilterItem[] filteredTags;            
     FilterItem[] dateFilterItems;
-    FilterItem[] authorFilterItems;
+    FilterItem[] authorFilterItems;    
 
     protected override async Task OnInitAsync()
     {
@@ -180,6 +189,12 @@ else
         item.Selected = true;
         
         await Search();
+    }
+
+    async Task FilterByTerm(UIChangeEventArgs evt)
+    {        
+        filter.Term = evt.Value.ToString();
+        await Search(false);
     }
 
     async Task NotifyChanged()
